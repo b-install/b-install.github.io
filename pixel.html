@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<!--<script type="text/javascript" src="https://static.codehs.com/gulp/3d065bc81d3b7edf21e928ce2c764374a03c5cd6/chs-js-lib/chs.js"></script>-->	
+
+
+	<style>
+canvas{
+    border: 1px solid black;
+}
+</style>
+
+</head>
+<body>
+
+<br>
+<!--<button type="button" onclick="start()">Start Pixel</button>
+<button type="button" onclick="poop()">Poop</button>
+<button type="button" onclick="feed()">Feed</button>
+<button type="button" onclick="function(){message2=name+' was murdered'; die();}">Kill</button>
+<button type="button" onclick="live()">Live</button>-->
+<button type="button" onclick="feed()">Feed</button>
+<button type="button" onclick="startPixel()">start Pixel</button>
+<p id="ageStat"></p>
+<p id="healthStat"></p>
+<p id="pettedStat"></p>
+<p id="fedStat"></p>
+<p id="happyStat"></p>
+<p id="message1Stat"></p>
+<p id="message2Stat"></p>
+<p id ="poops"></p>
+
+<script>
+
+var pet;
+var maxAge;
+var poops = [];
+
+var can = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = 480;
+        this.canvas.height = 270;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.frameNo = 0;
+        //this.interval = setInterval(updatePet, 20);
+        },
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+//makePet(150, 0, 0);
+
+
+function startPixel() {
+	var w = can.canvas.width;
+	var h = can.canvas.height;
+	pet = new Creature(10, 10, "#0F00FF", w/2, h/2);
+	can.start();
+	setInterval(updatePet, 1000);
+	//can.addEventListener("click", click, false);
+	
+}
+
+function click(){
+	feed();
+}
+
+function feed(){ //feeds the pet
+    pet.message2 = "Feeding...";
+    fed = Math.floor(pet.size/4);
+    //fedCount++;
+    pet.size += pet.growthRate;
+}
+
+function updatePet(){
+    status();
+    pet.degradeRate = 1 + (poops.length/10);
+    pet.size += pet.growthRate;
+    pet.age++;
+    
+    if(pet.happiness <= 0){
+        pet.status2 = pet.name + " died of sadness";
+        //pet.die;
+        return;
+    }
+    
+    if(pet.health <= 0){
+        pet.status2 = pet.name + " died of poor health";
+        //pet.die();
+        return;
+    }
+    
+    if(pet.fed >  50 || pet.poopSize > pet.size){
+        pet.status2 = name + " died of overfeeding";
+        //pet.die();
+        return;
+    }
+    
+    
+    //grows pet
+    var roundedSize = Math.floor(pet.size);
+    if(roundedSize > pet.size){
+        //makePet(roundedSize, pet.getX(), pet.getY());
+        pet.size = roundedSize;
+    }
+    
+
+    //moves the pet
+    //checkWalls();
+    //pet.move(dx, dy);
+    pet.degradeHealth();
+
+}
+function Creature(size, color, x, y, name, type){
+	this.alive = true;
+	this.x = x;
+	this.y = y;
+	this.name = name;
+	this.type = type;
+	this.age = 0;
+	this.size = size;
+	this.growthRate = 0.5;
+	this.happiness = 50;
+	this.health = 20;
+	this.fed = 0;
+	this.degradeRate = 1;
+	this.poopSize = 0;
+	this.status1 = "";
+	this.status2 = "";
+	this.petted = 0;
+	this.poopCount;
+	this.digesting = false;
+
+	this.degradeHealth = function(){
+	    
+	    if(this.petted > 0){
+	        this.petted--;
+	        this.happiness++;
+	        this.health++;
+	        
+	    }
+	    if(this.fed > 0){
+	        this.health++;
+	        this.fed--;
+	        this.poopSize++;
+	    }else{
+	        //this.poop();
+	    }
+	    
+	    if(this.happiness > 100){
+	        this.happiness = 100;
+	    }
+	    
+	    this.health -= Math.floor(degradeRate);
+	    this.happiness --;
+	}
+
+	this.poop = function(){
+	    this.status1 = "poop!";
+	    poops.push(1);
+	    this.poopCount++;
+	    this.poopSize = 0;
+		/*
+	    var dookie = new Rectangle(poopSize, poopSize);
+	    dookie.setPosition(pet.getX(), pet.getY());
+	    dookie.setColor(brown);
+	    add(dookie);
+	    poops.push(dookie);
+	    poopCount++;
+	    poopSize = 0;
+	    */
+	}
+
+	this.die = function(){
+
+	}
+}
+
+function status(){ //prints out current stats of pet in console
+    document.getElementById('ageStat').innerHTML="Age: " + pet.age + " (max: " + maxAge + ")";
+    document.getElementById('healthStat').innerHTML="Health: " + pet.health;
+    document.getElementById('pettedStat').innerHTML="Petted: " + pet.petted;
+    document.getElementById('fedStat').innerHTML="Fed: " + pet.fed;
+    document.getElementById('happyStat').innerHTML="Happy: " + pet.happiness;
+    document.getElementById('message1Stat').innerHTML=pet.status1;
+    document.getElementById('message2Stat').innerHTML=pet.status2;
+    document.getElementById('poops').innerHTML=poops.length;
+}
+
+function component(width, height, color, x, y, type) {
+    this.type = type;
+    this.score = 0;
+    this.width = width;
+    this.height = height;
+    this.speedX = 0;
+    this.speedY = 0;    
+    this.x = x;
+    this.y = y;
+    this.gravity = 0;
+    this.gravitySpeed = 0;
+    this.update = function() {
+        ctx = myGameArea.context;
+        if (this.type == "text") {
+            ctx.font = this.width + " " + this.height;
+            ctx.fillStyle = color;
+            ctx.fillText(this.text, this.x, this.y);
+        } else {
+            ctx.fillStyle = color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+    }
+    this.newPos = function() {
+        this.gravitySpeed += this.gravity;
+        this.x += this.speedX;
+        this.y += this.speedY + this.gravitySpeed;
+        this.hitBottom();
+    }
+    this.hitBottom = function() {
+        var rockbottom = myGameArea.canvas.height - this.height;
+        if (this.y > rockbottom) {
+            this.y = rockbottom;
+            this.gravitySpeed = 0;
+        }
+    }
+    this.crashWith = function(otherobj) {
+        var myleft = this.x;
+        var myright = this.x + (this.width);
+        var mytop = this.y;
+        var mybottom = this.y + (this.height);
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + (otherobj.width);
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + (otherobj.height);
+        var crash = true;
+        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+            crash = false;
+        }
+        return crash;
+    }
+}
+
+
+</script>
+
+</body>
+</html>
